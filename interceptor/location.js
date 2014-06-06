@@ -37,15 +37,20 @@
 				return config;
 			},
 			success: function (response, config, client) {
-				var request;
+				var request, extraHeaders;
 
 				if (isRedirect(response, config)) {
 					request = response.request || {};
 					client = (config.client || request.originator || client.skip());
 
+					if (request.headers && request.headers.Authorization) {
+						extraHeaders = { Authorization: request.headers.Authorization };
+					}
+
 					return client({
 						method: 'GET',
-						path: response.headers.Location
+						path: response.headers.Location,
+						headers: extraHeaders
 					});
 				}
 

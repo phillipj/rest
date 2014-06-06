@@ -44,6 +44,23 @@
 					refute(spy.returnValues[2].headers.Location);
 				}).otherwise(fail);
 			},
+			'should resend authorization header from original request in subsequent requests': function () {
+				var client, spy;
+				spy = this.spy(function (request) {
+				    var response = { request: request, headers: {  } };
+				    if (spy.callCount === 1) {
+				        response.headers.Location = '/foo';
+				    }
+				    return response;
+				});
+				client = location(spy);
+				return client({
+				    headers: { Authorization: 'Bearer 1234' }
+				}).then(function () {
+				    assert.same(2, spy.callCount);
+				    assert.same(spy.args[1][0].headers.Authorization, 'Bearer 1234');
+				}).otherwise(fail);
+			},
 			'should follow the location header when status code is greater or equal to configured status code': function () {
 				var client, spy;
 				spy = this.spy(function (request) {
